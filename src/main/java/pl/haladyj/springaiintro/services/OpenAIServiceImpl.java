@@ -5,6 +5,8 @@ import org.springframework.ai.chat.ChatResponse;
 import org.springframework.ai.chat.prompt.Prompt;
 import org.springframework.ai.chat.prompt.PromptTemplate;
 import org.springframework.stereotype.Service;
+import pl.haladyj.springaiintro.model.Answer;
+import pl.haladyj.springaiintro.model.Question;
 
 @Service
 public class OpenAIServiceImpl implements OpenAIService{
@@ -22,5 +24,14 @@ public class OpenAIServiceImpl implements OpenAIService{
         ChatResponse response = chatClient.call(prompt);
 
         return response.getResult().getOutput().getContent();
+    }
+
+    @Override
+    public Answer getAnswer(Question question) {
+        PromptTemplate promptTemplate = new PromptTemplate(question.question());
+        Prompt prompt = promptTemplate.create();
+        ChatResponse response = chatClient.call(prompt);
+
+        return new Answer(response.getResult().getOutput().getContent());
     }
 }
