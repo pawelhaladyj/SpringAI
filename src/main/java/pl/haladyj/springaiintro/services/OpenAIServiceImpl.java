@@ -12,10 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
-import pl.haladyj.springaiintro.model.Answer;
-import pl.haladyj.springaiintro.model.GetCapitalRequest;
-import pl.haladyj.springaiintro.model.GetCapitalResponse;
-import pl.haladyj.springaiintro.model.Question;
+import pl.haladyj.springaiintro.model.*;
 
 import java.util.Map;
 
@@ -68,11 +65,14 @@ public class OpenAIServiceImpl implements OpenAIService{
     }
 
     @Override
-    public Answer getCapitalWithInfo(GetCapitalRequest getCapitalRequest) {
+    public GetCapitalWithInfoResponse getCapitalWithInfo(GetCapitalRequest getCapitalRequest) {
+        BeanOutputParser<GetCapitalWithInfoResponse> parser = new BeanOutputParser<>(GetCapitalWithInfoResponse.class);
+        String format = parser.getFormat();
+
         PromptTemplate promptTemplate = new PromptTemplate(getCapitalWithInfoResource);
-        Prompt prompt = promptTemplate.create(Map.of("stateOrCountry",getCapitalRequest.stateOrCountry()));
+        Prompt prompt = promptTemplate.create(Map.of("stateOrCountry",getCapitalRequest.stateOrCountry(), "format", format));
         ChatResponse response = chatClient.call(prompt);
 
-        return new Answer(response.getResult().getOutput().getContent());
+        return parser.parse(response.getResult().getOutput().getContent());
     }
 }
